@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Cloze interattivo sull'ambiente naturale per una classe prima della scuola secondaria di primo grado.">
+  <title>Alla scoperta dell'ambiente naturale | Cloze</title>
+  <style>
+    :root {
+      --ink: #20332c;
+      --muted: #52665e;
+      --paper: #ffffff;
+      --bg: #f2f7f3;
+      --green: #276749;
+      --green-dark: #1e5039;
+      --mint: #e4f3e9;
+      --line: #c9d9ce;
+      --gold: #fff4cf;
+      --red: #9b2c2c;
+      --red-bg: #fff0f0;
+      --good-bg: #e8f7ec;
+      --focus: #1769aa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 18px;
+      line-height: 1.65;
+    }
+    .container { width: min(100% - 32px, 960px); margin: 0 auto; }
+    header {
+      background: linear-gradient(135deg, #1f5a42, #4c8a62);
+      color: white;
+      padding: 36px 0 32px;
+    }
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      font-size: .82rem;
+      font-weight: 700;
+      margin: 0 0 8px;
+    }
+    h1 { font-size: clamp(2rem, 5vw, 3.1rem); line-height: 1.12; margin: 0 0 12px; }
+    header p { max-width: 700px; margin: 0; font-size: 1.08rem; }
+    main { padding: 28px 0 48px; }
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: clamp(18px, 4vw, 30px);
+      margin-bottom: 22px;
+      box-shadow: 0 5px 18px rgba(30, 70, 48, .05);
+    }
+    h2 { font-size: 1.45rem; line-height: 1.25; margin: 0 0 14px; }
+    h3 { font-size: 1.1rem; margin: 0 0 8px; }
+    .intro-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .objective {
+      background: #f7faf7;
+      border-left: 4px solid var(--green);
+      padding: 14px 16px;
+      border-radius: 8px;
+    }
+    .objective ul { margin: 8px 0 0; padding-left: 22px; }
+    .objective li { margin: 5px 0; }
+    .instructions { background: var(--mint); border-radius: 12px; padding: 14px 16px; margin-bottom: 18px; }
+    .word-bank { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0 20px; }
+    .word {
+      border: 1px solid #b9d3c1;
+      background: #f8fcf9;
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-weight: 700;
+      color: #244f37;
+    }
+    .story { font-size: 1.12rem; line-height: 2.2; }
+    .blank {
+      display: inline-block;
+      width: min(180px, 42vw);
+      min-width: 118px;
+      vertical-align: middle;
+      margin: 0 4px;
+    }
+    input[type="text"] {
+      width: 100%;
+      font: inherit;
+      font-size: 1rem;
+      color: var(--ink);
+      padding: 7px 9px;
+      border: 2px solid #91b39b;
+      border-radius: 8px;
+      background: #fff;
+    }
+    input[type="text"]:focus, button:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+    input.correct { border-color: #27834b; background: var(--good-bg); }
+    input.incorrect { border-color: var(--red); background: var(--red-bg); }
+    .hint { display: block; font-size: .78rem; line-height: 1.25; color: var(--muted); text-align: center; margin-top: 2px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 18px;
+      font: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .primary { background: var(--green); color: white; }
+    .primary:hover { background: var(--green-dark); }
+    .secondary { background: #e9efeb; color: var(--ink); border: 1px solid var(--line); }
+    .secondary:hover { background: #dce8df; }
+    #feedback {
+      display: none;
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #f7faf7;
+    }
+    #feedback.visible { display: block; }
+    #score { font-size: 1.25rem; font-weight: 700; margin: 0 0 8px; }
+    #feedback p { margin: 6px 0; }
+    .reflection { color: var(--muted); font-size: .95rem; }
+    footer { text-align: center; color: var(--muted); font-size: .9rem; padding: 0 0 28px; }
+    @media (max-width: 650px) {
+      body { font-size: 17px; }
+      .intro-grid { grid-template-columns: 1fr; }
+      header { padding: 28px 0; }
+      .story { font-size: 1.03rem; }
+      .blank { min-width: 108px; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <p class="eyebrow">Italiano · Attività interattiva</p>
+      <h1>Alla scoperta dell'ambiente naturale</h1>
+      <p>Leggi il testo, traduci mentalmente gli indizi in inglese e completa gli spazi con le parole italiane adatte.</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="panel" aria-labelledby="progetto-title">
+      <h2 id="progetto-title">Obiettivi dell'attività</h2>
+      <div class="intro-grid">
+        <div class="objective">
+          <h3>Obiettivi primari</h3>
+          <ul>
+            <li>Comprendere il significato di semplici parole-indizio in inglese.</li>
+            <li>Inserire nel testo italiano il vocabolo corrispondente all'indizio.</li>
+            <li>Scegliere parole coerenti con il contesto e comprendere il senso generale del testo.</li>
+            <li>Seguire le consegne e portare a termine un'attività strutturata.</li>
+          </ul>
+        </div>
+        <div class="objective">
+          <h3>Obiettivi secondari</h3>
+          <ul>
+            <li>Consolidare il lessico relativo all'ambiente naturale in italiano e in inglese.</li>
+            <li>Collegare parole di due lingue diverse.</li>
+            <li>Sviluppare autonomia operativa e capacità di autocorrezione.</li>
+            <li>Favorire motivazione e partecipazione attraverso uno strumento digitale.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="attivita-title">
+      <h2 id="attivita-title">Completa il testo</h2>
+      <div class="instructions">
+        <strong>Come si fa?</strong>
+        <ol>
+          <li>Leggi con attenzione il testo.</li>
+          <li>Usa le parole in inglese come indizi e traducile mentalmente in italiano.</li>
+          <li>Scrivi una parola italiana in ogni spazio.</li>
+          <li>Premi <strong>“Controlla le risposte”</strong> per ricevere un feedback.</li>
+        </ol>
+      </div>
+
+      <h3>Parole-indizio in inglese</h3>
+      <div class="word-bank" aria-label="Elenco delle parole-indizio">
+        <span class="word">river</span>
+        <span class="word">mountain</span>
+        <span class="word">forest</span>
+        <span class="word">lake</span>
+        <span class="word">animals</span>
+        <span class="word">flowers</span>
+        <span class="word">trees</span>
+        <span class="word">clean</span>
+      </div>
+
+      <form id="cloze-form">
+        <div class="story">
+          Durante una passeggiata nella natura possiamo scoprire tanti luoghi meravigliosi. In montagna, un
+          <label class="blank"><input type="text" name="river" aria-label="Parola italiana per river" autocomplete="off"><span class="hint">river</span></label>
+          scorre tra le rocce e porta acqua a valle. In lontananza si vede una
+          <label class="blank"><input type="text" name="mountain" aria-label="Parola italiana per mountain" autocomplete="off"><span class="hint">mountain</span></label>
+          alta, mentre una
+          <label class="blank"><input type="text" name="forest" aria-label="Parola italiana per forest" autocomplete="off"><span class="hint">forest</span></label>
+          offre ombra e riparo a molti esseri viventi.
+          <br>
+          Vicino a un
+          <label class="blank"><input type="text" name="lake" aria-label="Parola italiana per lake" autocomplete="off"><span class="hint">lake</span></label>
+          possiamo osservare pesci e altri
+          <label class="blank"><input type="text" name="animals" aria-label="Parola italiana per animals" autocomplete="off"><span class="hint">animals</span></label>.
+          In primavera sbocciano tante
+          <label class="blank"><input type="text" name="flowers" aria-label="Parola italiana per flowers" autocomplete="off"><span class="hint">flowers</span></label>
+          colorate e crescono nuovi
+          <label class="blank"><input type="text" name="trees" aria-label="Parola italiana per trees" autocomplete="off"><span class="hint">trees</span></label>.
+          Per proteggere questi ambienti, è importante lasciarli
+          <label class="blank"><input type="text" name="clean" aria-label="Parola italiana per clean" autocomplete="off"><span class="hint">clean</span></label>
+          e non abbandonare rifiuti.
+        </div>
+
+        <div class="actions">
+          <button class="primary" type="submit">Controlla le risposte</button>
+          <button class="secondary" type="button" id="show-hints">Mostra le traduzioni</button>
+          <button class="secondary" type="button" id="reset">Ricomincia</button>
+        </div>
+      </form>
+
+      <div id="feedback" role="status" aria-live="polite">
+        <p id="score"></p>
+        <div id="feedback-details"></div>
+      </div>
+      <p class="reflection">Nota: il pulsante “Mostra le traduzioni” è un supporto facoltativo. Può essere usato dopo un primo tentativo o quando serve un aiuto aggiuntivo.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="metodo-title">
+      <h2 id="metodo-title">Scelte didattiche</h2>
+      <p>Gli indizi in inglese costituiscono una facilitazione: aiutano a recuperare il significato delle parole, ma lo studente deve comunque tradurle e inserirle in un contesto italiano. La correzione immediata favorisce l'autovalutazione e permette di riprovare senza penalizzazioni.</p>
+      <p class="reflection">L'attività può essere adattata al livello linguistico e ai bisogni della classe: si possono ridurre gli indizi, aggiungere immagini, leggere il testo ad alta voce oppure svolgere il compito in coppia.</p>
+    </section>
+  </main>
+
+  <footer class="container">Attività didattica digitale · Classe prima della scuola secondaria di primo grado</footer>
+
+  <script>
+    const answers = {
+      river: { accepted: ["fiume"], translation: "fiume" },
+      mountain: { accepted: ["montagna"], translation: "montagna" },
+      forest: { accepted: ["foresta", "bosco"], translation: "foresta (o bosco)" },
+      lake: { accepted: ["lago"], translation: "lago" },
+      animals: { accepted: ["animali"], translation: "animali" },
+      flowers: { accepted: ["fiori"], translation: "fiori" },
+      trees: { accepted: ["alberi"], translation: "alberi" },
+      clean: { accepted: ["puliti", "pulito", "pulite", "pulita"], translation: "puliti" }
+    };
+
+    const form = document.getElementById("cloze-form");
+    const feedback = document.getElementById("feedback");
+    const score = document.getElementById("score");
+    const details = document.getElementById("feedback-details");
+
+    function normalize(value) {
+      return value.trim().toLocaleLowerCase("it-IT").normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ");
+    }
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      let correct = 0;
+      const total = Object.keys(answers).length;
+      details.innerHTML = "";
+
+      Object.entries(answers).forEach(([key, item]) => {
+        const input = form.elements[key];
+        const value = normalize(input.value);
+        const isCorrect = item.accepted.some(answer => normalize(answer) === value);
+        input.classList.toggle("correct", isCorrect);
+        input.classList.toggle("incorrect", !isCorrect);
+        input.setAttribute("aria-invalid", String(!isCorrect));
+        if (isCorrect) {
+          correct++;
+        } else {
+          const p = document.createElement("p");
+          p.textContent = `Indizio “${key}”: risposta attesa — ${item.translation}.`;
+          details.appendChild(p);
+        }
+      });
+
+      score.textContent = `Hai completato correttamente ${correct} risposte su ${total}.`;
+      const summary = document.createElement("p");
+      summary.textContent = correct === total
+        ? "Ottimo lavoro! Hai completato tutto il testo."
+        : "Rileggi le risposte evidenziate e prova a correggerle. Puoi riprovare tutte le volte che vuoi.";
+      details.prepend(summary);
+      feedback.classList.add("visible");
+      feedback.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
+    document.getElementById("show-hints").addEventListener("click", function () {
+      Object.entries(answers).forEach(([key, item]) => {
+        const input = form.elements[key];
+        if (!input.value.trim()) input.value = item.translation.split(" (")[0];
+      });
+      const note = document.createElement("p");
+      note.textContent = "Le traduzioni sono state mostrate negli spazi ancora vuoti. Prova a leggere di nuovo il testo.";
+      feedback.classList.add("visible");
+      score.textContent = "Supporto: traduzioni mostrate.";
+      details.replaceChildren(note);
+    });
+
+    document.getElementById("reset").addEventListener("click", function () {
+      form.reset();
+      form.querySelectorAll("input").forEach(input => {
+        input.classList.remove("correct", "incorrect");
+        input.removeAttribute("aria-invalid");
+      });
+      feedback.classList.remove("visible");
+      score.textContent = "";
+      details.replaceChildren();
+      form.querySelector("input").focus();
+    });
+  </script>
+</body>
+</html>
