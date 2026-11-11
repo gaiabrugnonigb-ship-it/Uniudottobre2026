@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Space Typing Battle</title>
+<style>
+:root{--cyan:#5ef2ff;--pink:#ff5fa2;--gold:#ffd166;--bg:#070b1d}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#18295a 0%,#0a1230 42%,#050817 100%);color:#f3f7ff;font-family:system-ui,-apple-system,Segoe UI,sans-serif;display:flex;justify-content:center;padding:18px}
+.wrap{width:min(980px,100%)}
+header{text-align:center;margin:4px 0 14px}
+h1{margin:0;font-size:clamp(1.7rem,5vw,2.7rem);letter-spacing:.07em;color:var(--cyan);text-shadow:0 0 18px #31cfff88}
+.subtitle{color:#b9c9ef;margin:4px 0 0;font-size:.95rem}
+.panel{background:#111b3acc;border:1px solid #526ba6;border-radius:16px;padding:12px;box-shadow:0 12px 35px #0006}
+.controls{display:flex;gap:10px;align-items:end;flex-wrap:wrap;justify-content:center}
+.control{display:flex;flex-direction:column;gap:5px;color:#b9c9ef;font-size:.8rem}
+select,button,input{font:inherit;border-radius:10px;border:1px solid #6079b7;background:#0a1430;color:#fff;padding:10px 12px}
+button{cursor:pointer;font-weight:700;background:linear-gradient(135deg,#167fba,#5944b8);border:0;box-shadow:0 4px 12px #0005}
+button:hover{filter:brightness(1.15)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.student{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:4px 0 12px}.student label{display:flex;flex-direction:column;gap:5px;color:#b9c9ef;font-size:.8rem}.student input{width:100%}.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0}
+.stat{background:#101a36;border:1px solid #334a7e;border-radius:12px;padding:8px;text-align:center}
+.stat small{display:block;color:#9fb1dc;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em}
+.stat strong{font-size:1.25rem;color:#fff}
+#arena{height:min(58vh,510px);min-height:330px;position:relative;overflow:hidden;border-radius:16px;border:2px solid #4768a8;background:linear-gradient(#070e2a,#101c43 65%,#1a2350);box-shadow:inset 0 0 50px #050817,0 10px 30px #0007}
+#space{position:absolute;inset:0;width:100%;height:100%}
+.hud{position:absolute;top:10px;left:12px;color:#9eb8e9;font-size:.75rem;letter-spacing:.1em;pointer-events:none}
+.ship{position:absolute;bottom:17px;left:50%;transform:translateX(-50%);font-size:38px;filter:drop-shadow(0 0 12px #55eaff);transition:left .15s}
+#beam{position:absolute;bottom:57px;left:50%;width:3px;height:0;background:var(--cyan);box-shadow:0 0 12px 4px var(--cyan);opacity:0}
+#beam.fire{animation:shoot .24s ease-out}
+@keyframes shoot{0%{height:0;opacity:1}70%{height:55%;opacity:1}100%{height:60%;opacity:0}}
+.target{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;pointer-events:none}
+.target .alien{font-size:32px;filter:drop-shadow(0 0 9px #ff5fa2)}
+.target .word{background:#271338eF;border:1px solid #ff75b5;border-radius:8px;padding:3px 9px;color:#fff;font-weight:800;letter-spacing:.06em;white-space:nowrap;box-shadow:0 0 12px #ff5fa255}
+.target.hit{animation:pop .2s forwards}
+@keyframes pop{to{transform:translate(-50%,-50%) scale(1.8);opacity:0}}
+#message{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:22px;background:#050a1dcc;z-index:5}
+#message .box{max-width:470px}
+#message h2{color:var(--gold);font-size:1.65rem;margin:0 0 8px}
+#message p{color:#d2defb;line-height:1.5;margin:6px 0 16px}
+#message.hidden{display:none}
+.playarea{display:flex;gap:9px;align-items:center;margin-top:12px}
+#typing{flex:1;min-width:0;font-size:1.1rem;text-align:center;border:2px solid #5b75b7;background:#080f27;padding:13px}
+#typing::placeholder{color:#788bb8}
+.reportbar{display:flex;justify-content:center;margin-top:10px}.reportbar button{background:linear-gradient(135deg,#147b68,#2161a5)}#feedback{min-height:24px;text-align:center;color:var(--gold);font-weight:700;margin:7px 0 0}
+.help{text-align:center;color:#aab9dc;font-size:.83rem;margin:8px 0 0;line-height:1.45}
+footer{text-align:center;color:#7285b4;font-size:.72rem;margin:12px}
+@media(max-width:560px){body{padding:10px}.student{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr);gap:5px}.stat{padding:7px 3px}.stat strong{font-size:1.05rem}#arena{min-height:340px;height:52vh}.controls{gap:7px}.control{flex:1;min-width:105px}select,button{width:100%}.playarea{flex-wrap:wrap}#typing{width:100%;flex-basis:100%}.ship{font-size:34px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>🚀 SPACE TYPING BATTLE</h1>
+<p class="subtitle">Difendi la galassia: digita, mira, spara!</p>
+</header>
+<section class="panel">
+<div class="student">
+<label>Nome<input id="studentName" type="text" placeholder="Nome" autocomplete="given-name"></label>
+<label>Cognome<input id="studentSurname" type="text" placeholder="Cognome" autocomplete="family-name"></label>
+<label>Classe<input id="studentClass" type="text" placeholder="Es. 1ª A"></label>
+</div>
+<div class="controls">
+<label class="control">Allenamento
+<select id="mode"><option value="letters">Lettere</option><option value="syllables" selected>Sillabe</option><option value="words">Parole</option></select>
+</label>
+<label class="control">Difficoltà
+<select id="difficulty"><option value="easy">Facile</option><option value="normal" selected>Media</option><option value="hard">Difficile</option></select>
+</label>
+<label class="control">Durata partita
+<select id="duration"><option value="30">30 secondi</option><option value="60">1 minuto</option><option value="120" selected>2 minuti</option><option value="180">3 minuti</option><option value="300">5 minuti</option><option value="600">10 minuti</option></select>
+</label>
+<button id="start">▶ Inizia partita</button>
+<button id="restart" type="button">↻ Ricomincia</button>
+</div>
+<div class="stats">
+<div class="stat"><small>Punteggio</small><strong id="score">0</strong></div>
+<div class="stat"><small>Vite</small><strong id="lives">❤️❤️❤️</strong></div>
+<div class="stat"><small>Livello</small><strong id="level">1</strong></div>
+<div class="stat"><small>Abbattute</small><strong id="hits">0</strong></div>
+<div class="stat"><small>Tempo</small><strong id="timer">02:00</strong></div>
+</div>
+<div id="arena" aria-label="Campo di gioco">
+<canvas id="space"></canvas>
+<div class="hud">SETTORE GALATTICO // DIFESA ATTIVA</div>
+<div id="beam"></div>
+<div class="ship">🚀</div>
+<div id="message"><div class="box"><h2>Pronto al decollo?</h2><p>Le navicelle nemiche scenderanno portando lettere, sillabe o parole. Digita il testo esatto e premi <b>INVIO</b> (oppure tocca il pulsante Spara) prima che raggiungano la tua base!</p><button id="overlayStart">🚀 Comincia!</button></div></div>
+</div>
+<div class="playarea">
+<input id="typing" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Scrivi qui ciò che leggi sulla navicella…" aria-label="Testo da digitare">
+<button id="fire" type="button">⚡ SPARA</button>
+</div>
+<div id="feedback" aria-live="polite">Scegli la modalità e preparati!</div>
+<div class="reportbar"><button id="saveReport" type="button" disabled>⬇ Salva report della partita</button></div>
+<p class="help">Suggerimento: puoi usare la tastiera del computer o quella virtuale del tablet. Ogni bersaglio abbattuto vale punti!</p>
+</section>
+<footer>SPACE TYPING BATTLE · Allenati divertendoti</footer>
+</div>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const arena=$('arena'), canvas=$('space'), ctx=canvas.getContext('2d');
+const input=$('typing');
+const pools={
+ letters:'ABCDEFGHILMNOPQRSTUVZ'.split(''),
+ syllables:'BA BE BI BO BU CA CE CI CO CU DA DE DI DO DU FA FE FI FO FU GA GE GI GO GU LA LE LI LO LU MA ME MI MO MU NA NE NI NO NU PA PE PI PO PU RA RE RI RO RU SA SE SI SO SU TA TE TI TO TU VA VE VI VO VU'.split(' '),
+ words:'CASA GATTO SOLE LUNA MARE FIORE LIBRO SCUOLA TRENO STELLA PIANETA AMICO BOSCO FIUME PALLA PORTA CUORE NUVOLE ROBOT SPAZIO'.split(' ')
+};
+let targets=[],score=0,lives=3,hits=0,level=1,running=false,last=0,spawn=0,raf=0,stars=[],gameTime=0,remaining=120,wrongAttempts=0,typedChars=0,session=null;
+const settings={easy:{speed:34,spawn:2.2},normal:{speed:48,spawn:1.65},hard:{speed:65,spawn:1.25}};
+function resize(){const r=arena.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=r.width*dpr;canvas.height=r.height*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);stars=Array.from({length:75},()=>({x:Math.random()*r.width,y:Math.random()*r.height,s:Math.random()*1.7+.3,a:Math.random()*.7+.2}));drawStars()}
+function drawStars(){const w=arena.clientWidth,h=arena.clientHeight;ctx.clearRect(0,0,w,h);for(const s of stars){ctx.globalAlpha=s.a;ctx.fillStyle='#d8edff';ctx.fillRect(s.x,s.y,s.s,s.s)}ctx.globalAlpha=1}
+window.addEventListener('resize',resize);resize();
+function updateStats(){$('score').textContent=score;$('lives').textContent='❤️'.repeat(lives)+'🖤'.repeat(3-lives);$('level').textContent=level;$('hits').textContent=hits;$('timer').textContent=formatTime(remaining)}
+function formatTime(seconds){const n=Math.max(0,Math.ceil(seconds));return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')}
+function randomTarget(){const pool=pools[$('mode').value];return pool[Math.floor(Math.random()*pool.length)]}
+function addTarget(){const el=document.createElement('div');el.className='target';el.innerHTML='<div class="alien">👾</div><div class="word"></div>';el.querySelector('.word').textContent=randomTarget();arena.appendChild(el);const w=arena.clientWidth;targets.push({el,y:-25,x:Math.max(45,Math.random()*(w-45)),text:el.querySelector('.word').textContent,speed:settings[$('difficulty').value].speed+Math.random()*12+(level-1)*4})}
+function shoot(){if(!running)return;const value=input.value.trim().toLocaleUpperCase('it');if(!value)return;const idx=targets.findIndex(t=>t.text===value);if(idx<0){wrongAttempts++;$('feedback').textContent='Non è ancora il bersaglio giusto: riprova!';$('feedback').style.color='#ff8aa9';return}
+const t=targets[idx];t.el.classList.add('hit');setTimeout(()=>t.el.remove(),180);targets.splice(idx,1);score+=10+Math.min(level*2,20);hits++;level=1+Math.floor(hits/8);updateStats();$('feedback').textContent='CENTRATO! +'+(10+Math.min(level*2,20))+' punti ✨';$('feedback').style.color='#75ffd0';input.value='';const beam=$('beam');beam.classList.remove('fire');void beam.offsetWidth;beam.classList.add('fire');
+}
+function loseLife(t){t.el.remove();targets=targets.filter(x=>x!==t);lives--;updateStats();$('feedback').textContent='Una navicella è passata! Attenzione!';$('feedback').style.color='#ff8aa9';if(lives<=0)endGame(false,'Vite esaurite')}
+function loop(now){if(!running)return;const dt=Math.min((now-last)/1000,.05);last=now;gameTime+=dt;remaining=Math.max(0,remaining-dt);updateStats();if(remaining<=0){endGame(true,'Tempo terminato');return}spawn+=dt;drawStars();const cfg=settings[$('difficulty').value];if(spawn>=Math.max(.65,cfg.spawn-(level-1)*.08)){spawn=0;addTarget()}
+for(const t of [...targets]){t.y+=t.speed*dt;t.el.style.left=t.x+'px';t.el.style.top=t.y+'px';if(t.y>arena.clientHeight-60)loseLife(t)}
+raf=requestAnimationFrame(loop)}
+function start(){
+const name=$('studentName').value.trim(),surname=$('studentSurname').value.trim(),studentClass=$('studentClass').value.trim();
+if(!name||!surname||!studentClass){$('feedback').textContent='Inserisci nome, cognome e classe prima di iniziare.';$('feedback').style.color='#ffd166';return}
+cancelAnimationFrame(raf);targets.forEach(t=>t.el.remove());targets=[];score=0;lives=3;hits=0;level=1;spawn=0;gameTime=0;wrongAttempts=0;typedChars=0;remaining=Number($('duration').value);session={name,surname,studentClass,mode:$('mode').selectedOptions[0].text,difficulty:$('difficulty').selectedOptions[0].text,duration:remaining,startedAt:new Date()};$('saveReport').disabled=true;running=true;updateStats();$('message').classList.add('hidden');$('feedback').textContent='Difendi la base!';$('feedback').style.color='var(--gold)';input.value='';last=performance.now();input.focus();raf=requestAnimationFrame(loop)}
+function endGame(won,reason='Vite esaurite'){if(!running)return;running=false;cancelAnimationFrame(raf);remaining=Math.max(0,remaining);updateStats();session.finishedAt=new Date();session.elapsed=Math.round(gameTime);session.remaining=Math.ceil(remaining);session.score=score;session.hits=hits;session.livesLeft=lives;session.wrongAttempts=wrongAttempts;session.typedChars=typedChars;session.accuracy=(hits+wrongAttempts)?Math.round(hits/(hits+wrongAttempts)*100):0;session.reason=reason;$('saveReport').disabled=false;$('message').classList.remove('hidden');$('message').innerHTML='<div class="box"><h2>'+(won?'MISSIONE COMPLETATA!':'FINE DELLA PARTITA')+'</h2><p>'+reason+'.<br>Navicelle abbattute: <b>'+hits+'</b> · Punteggio: <b>'+score+'</b><br>Precisione: <b>'+session.accuracy+'%</b></p><button id="again">↻ Gioca ancora</button><p style="font-size:.85rem;margin-top:10px">Puoi salvare il report con il pulsante sotto il campo di gioco.</p></div>';$('again').addEventListener('click',start)}
+function saveReport(){if(!session)return;const rows=[['Campo','Valore'],['Nome',session.name],['Cognome',session.surname],['Classe',session.studentClass],['Modalità',session.mode],['Difficoltà',session.difficulty],['Durata prevista (secondi)',session.duration],['Tempo effettivo (secondi)',session.elapsed],['Esito',session.reason],['Punteggio',session.score],['Navicelle abbattute',session.hits],['Errori di digitazione',session.wrongAttempts],['Precisione (%)',session.accuracy],['Caratteri digitati',session.typedChars],['Vite rimanenti',session.livesLeft],['Data e ora inizio',session.startedAt.toLocaleString('it-IT')],['Data e ora fine',session.finishedAt.toLocaleString('it-IT')]];const csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='report_space_typing_'+session.surname+'_'+session.name+'.csv';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
+input.addEventListener('keydown',e=>{if(running&&e.key.length===1)typedChars++});$('duration').addEventListener('change',()=>{if(!running){remaining=Number($('duration').value);updateStats()}});$('saveReport').addEventListener('click',saveReport);$('start').addEventListener('click',start);$('overlayStart').addEventListener('click',start);$('restart').addEventListener('click',start);$('fire').addEventListener('click',shoot);input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();shoot()}});arena.addEventListener('pointerdown',()=>{if(running)input.focus()});
+})();
+</script>
+</body>
+</html>
